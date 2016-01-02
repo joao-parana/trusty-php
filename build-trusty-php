@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+export HUB_USER_NAME=parana
+
+docker build -t $HUB_USER_NAME/trusty-php .
