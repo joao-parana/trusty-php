@@ -11,13 +11,23 @@ Another aprouch: You can use this image and commit with the app inside.
 
     docker run -d --name trusty-php-app \
         parana/trusty-php \
-        git clone https://github.com/whatever-repo/whatever-php-app.git /app
+        git clone https://github.com/joao-parana/test-phpapp.git /app
+
+    docker  logs trusty-php-app
 
 To create an image from that, execute:
 
     docker commit trusty-php-app parana/trusty-php
 
-You can now push your changes to the registry, like this example:
+Now you can remove the container, because you have commited it
+
+    docker rm trusty-php-app
+
+And you can inspect the new image, running `ls /app` inside it using a bash shell
+
+    docker run -i -t --name trusty-php-app -p 80:80 parana/trusty-php bash    
+
+You can now push your changes to the registry, like in this example:
 
     docker push parana/trusty-php
 
@@ -29,7 +39,15 @@ Pull your image, if it's not yet on your local docker machine:
 
 	docker pull parana/trusty-php
 
-Run the `/run.sh` script to start apache (via supervisor):
+You can run the Test Application, exit and remove the container, only to see 
+if the image is OK.
+
+  docker run -i -t --name trusty-php-app --rm \
+         parana/trusty-php \
+         php /app/testecli.php
+
+Run the `/run.sh` script to start apache (via supervisor) on 
+Container in Daemon mode:
 
 	docker run -d --name trusty-php-app -p 80:80 parana/trusty-php /run.sh
 
