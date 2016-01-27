@@ -1,0 +1,11 @@
+@startuml
+package Ubuntu_14_04 {
+  interface supervisor
+  interface pwgen
+  interface git
+  interface apache2
+  interface php5
+  interface curl
+  interface composer
+}
+@enduml
