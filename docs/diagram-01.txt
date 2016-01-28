@@ -1,11 +1,28 @@
 @startuml
-package Ubuntu_14_04 {
-  interface supervisor
-  interface pwgen
-  interface git
-  interface apache2
-  interface php5
-  interface curl
-  interface composer
+package "Ubuntu 14.04 'Trusty'"  <<Rect>> {
+  interface "apache2 " << (M,orange) >>
+  interface "php5 " << (P,orange) >>
+  interface "supervisor " << (M,yellow) >>
+  interface "pwgen " << (M,yellow) >>
+  interface "git " << (M,yellow) >>
+  interface "curl " << (M,yellow) >>
+  interface "composer " << (P,yellow) >>
 }
+"php5 " -> "apache2 "
+hide members
+@enduml
+
+@startuml
+package "Imagem Docker 'trusty-php'"  <<Rect>>  {
+  interface "Dockerfile " << (F,orange) >>
+  interface "run sh " << (F,orange) >>
+  interface "supervisord-apache2 conf " << (F,orange) >>
+  interface "start sh " << (F,orange) >>
+  interface "/etc/apache2/envvars " << (F,orange) >>
+}
+"Dockerfile " -> "run sh "
+"run sh " --> "supervisord-apache2 conf "
+"supervisord-apache2 conf " -> "start sh "
+"start sh " --> "/etc/apache2/envvars "
+hide members
 @enduml
