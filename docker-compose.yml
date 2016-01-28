@@ -1,0 +1,10 @@
+web_test:
+  build: busybox
+  entrypoint: ["sh", "-c", "\
+    while true ; \
+    do \
+      echo -e \"Hi, Wordpress Meetup fellows\" | nc -l -p 8080 ; \
+    done"]
+  ports:
+    - "80:8080"
+
