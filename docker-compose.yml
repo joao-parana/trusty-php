@@ -1,9 +1,10 @@
 web_test:
   build: busybox
+  # netcat utility is used for just about anything under the sun involving TCP or UDP
   entrypoint: ["sh", "-c", "\
     while true ; \
     do \
-      echo -e \"Hi, Wordpress Meetup fellows\" | nc -l -p 8080 ; \
+      echo -e \"Hi, Wordpress Meetup fellows\" | nc -p 8080 ; \
     done"]
   ports:
     - "80:8080"

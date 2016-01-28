@@ -2,9 +2,119 @@
 
 **Docker image to run PHP applications with Apache Web Server on a Ubuntu 14.04 box**
 
+
+## Easy Way - Also Known As Executive Summary
+
+* Push `my-app` to your github account
+* Install Docker
+* Run `docker run -d --name trusty-php-app -p 80:80 parana/trusty-php /run.sh your_github_account/your-app destination`, for example you can use my test app: `joao-parana/test-phpapp` and `test` with `destination`. In this case the full command is: `docker run -d --name trusty-php-app -p 80:80 parana/trusty-php /run.sh joao-parana/test-phpapp test`
+* Run `docker logs trusty-php-app`
+* Run `open http://$(docker-ip)/test` if you is using my PHP test application `joao-parana/test-phpapp` as explained bellow. O function `docker-ip` returns the result off `docker-machine ip default` or `boot2docker ip` or `localhost`, in case of you is using Linux. 
+
+If you need stop and remove the container use: `docker stop trusty-php-app && docker rm trusty-php-app`
+
+That's All !
+
 ## Dependencies Diagram
 
 ![Dependencies Diagram](https://raw.githubusercontent.com/joao-parana/trusty-php/master/docs/diagram-02-2x.png)
+
+### Files
+
+#### /etc/apache2/envvars
+
+```bash
+cat /etc/apache2/envvars
+# envvars - default environment variables for apache2ctl
+unset HOME
+if [ "${APACHE_CONFDIR##/etc/apache2-}" != "${APACHE_CONFDIR}" ] ; then
+  SUFFIX="-${APACHE_CONFDIR##/etc/apache2-}"
+else
+  SUFFIX=
+fi
+export APACHE_RUN_USER=www-data
+export APACHE_RUN_GROUP=www-data
+export APACHE_PID_FILE=/var/run/apache2/apache2$SUFFIX.pid
+export APACHE_RUN_DIR=/var/run/apache2$SUFFIX
+export APACHE_LOCK_DIR=/var/lock/apache2$SUFFIX
+export APACHE_LOG_DIR=/var/log/apache2$SUFFIX
+# The locale used by some modules like mod_dav
+export LANG=C
+export LANG
+```
+
+#### start.sh
+```bash
+cat start.sh
+#!/bin/bash
+source /etc/apache2/envvars
+exec apache2 -D FOREGROUND
+```
+#### supervisord-apache2.conf
+
+```bash
+cat supervisord-apache2.conf
+[program:apache2]
+command=/start.sh
+numprocs=1
+autostart=true
+autorestart=true
+```
+
+#### run.sh
+
+```bash
+cat run.sh
+#!/bin/bash
+APP_SRC=$1
+# Doing git clone when requested
+if [ -z "$APP_SRC" ]; then
+  echo "••• `date` - APP_SRC : $APP_SRC "
+else
+  echo "••• `date` - APP_SRC : $APP_SRC "
+  echo "••• `date` - Current Directory: `pwd` "
+  GITHUB_URL="https://github.com/$APP_SRC.git"
+  echo "••• `date` - GITHUB_URL : $GITHUB_URL"
+  echo "••• `date` - Local Destination path : `pwd`/$2"
+  git clone $GITHUB_URL $2
+fi
+echo "••• `date` - Iniciando aplicação PHP sob o Apache no Ubuntu 14.04 •••"
+exec supervisord -n
+```
+
+
+#### Dockerfile
+
+```bash
+FROM ubuntu:14.04
+MAINTAINER João Antonio Ferreira "joao.parana@gmail.com"
+#
+# Esta imagem contém supervisor, apache, PHP, git e Composer
+#
+# Install packages
+RUN apt-get update && \
+ DEBIAN_FRONTEND=noninteractive apt-get -y upgrade && \
+ DEBIAN_FRONTEND=noninteractive apt-get -y install supervisor pwgen && \
+ apt-get -y install git apache2 libapache2-mod-php5 php5-mysql php5-pgsql php5-gd php-pear php-apc curl && \
+ curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin && \
+ mv /usr/local/bin/composer.phar /usr/local/bin/composer
+# Override default apache conf
+ADD apache.conf /etc/apache2/sites-enabled/000-default.conf
+# Enable apache rewrite module
+RUN a2enmod rewrite
+# Add image configuration and scripts
+ADD start.sh /start.sh
+ADD run.sh /run.sh
+RUN chmod 755 /*.sh
+ADD supervisord-apache2.conf /etc/supervisor/conf.d/supervisord-apache2.conf
+# Configure /app folder
+RUN mkdir -p /app && rm -fr /var/www/html && ln -s /app /var/www/html
+EXPOSE 80
+WORKDIR /app
+CMD ["/run.sh"]
+```
+
+
 
 ## Build the image
 
