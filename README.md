@@ -17,7 +17,7 @@ Showing Docker image details
     docker images parana/trusty-php
     docker history  parana/trusty-php
 
-You can see something like this:
+You will see something like this:
 
     IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
     4afafc2a1b69        3 minutes ago       /bin/sh -c #(nop) CMD ["/run.sh"]               0 B                 
@@ -37,7 +37,7 @@ You can see something like this:
     2ef91804894a        8 days ago          /bin/sh -c echo '#!/bin/sh' > /usr/sbin/polic   194.5 kB            
     92ec6d044cb3        8 days ago          /bin/sh -c #(nop) ADD file:7ce20ce3daa6af21db   187.7 MB 
 
-You can see the original Dockerfile for Ubuntu Trusty is something like this:
+The [original Dockerfile for Ubuntu Trusty](https://github.com/tianon/docker-brew-ubuntu-core/blob/e406914e5f648003dfe8329b512c30c9ad0d2f9c/trusty/Dockerfile) is something like this:
 
     FROM scratch
     ADD ubuntu-trusty-core-cloudimg-amd64-root.tar.gz ...
@@ -45,7 +45,7 @@ You can see the original Dockerfile for Ubuntu Trusty is something like this:
     RUN sed -i 's/^#\s*\(deb.*universe\)$/\1/g' /etc/apt/sources.list
     CMD ["/bin/bash"]
 
-This appear at the bottom of docker history output (latest 4 lines).
+As you see, this appear at the bottom of **docker history output** (latest 4 lines).
 
 Now I can delete the Ubuntu Image and Dangling images
 
@@ -53,6 +53,9 @@ Now I can delete the Ubuntu Image and Dangling images
     echo "Removing dangling images ..."
     docker rmi $(docker images -f dangling=true -q)
 
+And list the images in your host computer
+
+    docker images
 
 ## Installing your PHP application
 
